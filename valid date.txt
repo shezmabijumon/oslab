@@ -1,0 +1,55 @@
+echo "Enter date in dd/mm/yyyy format:"
+read date
+
+# Extract day, month, and year from the input date
+day=$(echo "$date" | cut -d'/' -f1)
+month=$(echo "$date" | cut -d'/' -f2)
+year=$(echo "$date" | cut -d'/' -f3)
+
+if [[ $year -ge 1951 && $year -le 2025 ]]; then
+	if [[ $year%4 -eq 0 && $year%100 -ne 0 || $year%400 -eq 0 ]]; then
+		leap=1
+	else
+		leap=0
+	fi
+	# month calculation
+	if [[ $month -ge 1 && $month -le 12 ]]; then
+		# checking for months with 31 days
+		if [[ $month -eq 1 || $month -eq 3 || $month -eq 5 || $month -eq 7 || $month -eq 8 || $month -eq 10 || $month -eq 12 ]]; then
+			# checking if the day is valid
+			if [[ $day -ge 1 && $day -le 31 ]]; then
+				echo "valid date"
+			else
+				echo "invalid date"
+			fi
+		# checking for months with 30 days
+		elif [[ $month -eq 4 || $month -eq 6 || $month -eq 9 || $month -eq 11 ]]; then
+			# checking if day is valid`
+			if [[ $day -ge 1 && $day -le 30 ]]; then
+				echo "valid date"
+			else
+				echo "invalid date"
+			fi
+		# february condition
+		else
+			if [[ $leap -eq 1 ]]; then
+				# leap year check
+				if [[ $day -ge 1 && $day -le 29 ]]; then
+					echo "valid date"
+				else
+					echo "invalid date"
+				fi
+			else
+				if [[ $day -ge 1 && $day -le 28 ]]; then
+					echo "valid date"
+				else
+					echo "invalid date"
+				fi
+			fi
+		fi
+	else
+		echo "invalid month"
+	fi
+else
+	 echo "invalid year"
+fi

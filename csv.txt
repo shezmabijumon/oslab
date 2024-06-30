@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# Function to calculate the number of students passed in all subjects
+count_passed_students() {
+	while IFS=, read -r regno subj1 subj2 subj3 subj4 subj5 subj6; do
+        	total_marks=$((subj1 + subj2 + subj3 + subj4 + subj5 + subj6))
+        	if [ $total_marks -ge 180 ]; then
+            		((passed_students++))
+        	fi
+    	done < RESULT.CSV
+}
+
+# Function to calculate the number of students passed, failed, and percentage of pass for each subject
+
+subject_analysis() {
+    	echo "Subject Analysis:"
+	echo "-----------------"
+    	echo "Subject  Passed  Failed  Pass Percentage"
+    	while IFS=, read -r regno subj1 subj2 subj3 subj4 subj5 subj6; do
+        	passed=0
+        	failed=0
+        	total_students=1 # Considering at least one student for division by zero error
+        	if [ $subj1 -ge 50 ]; then
+            		((passed++))
+        	else
+            		((failed++))
+        	fi
+        	if [ $subj2 -ge 50 ]; then
+            		((passed++))
+        	else
+            		((failed++))
+        	fi
+        	if [ $subj3 -ge 50 ]; then
+            		((passed++))
+       	else
+            		((failed++))
+        	fi
+        	if [ $subj4 -ge 50 ]; then
+            		((passed++))
+        	else
+            		((failed++))
+        	fi
+        	if [ $subj5 -ge 50 ]; then
+            		((passed++))
+        	else
+            		((failed++))
+        	fi
+        	if [ $subj6 -ge 50 ]; then
+            		((passed++))
+        	else
+            		((failed++))
+        	fi
+
+        	# Print subject-wise analysis
+        	pass_percentage=$(echo "scale=2; ($passed / 6) * 100" | bc)
+        	echo "Subject$((++subject_count))      $passed     $failed     $pass_percentage%"
+    	done < RESULT.CSV
+}
+
+# Main script starts here
+# Count the number of students registered
+students_registered=$(wc -l < RESULT.CSV)
+((students_registered--)) # Subtracting header line
+
+# Initialize variables
+passed_students=0
+subject_count=0
+
+# Call functions
+count_passed_students
+subject_analysis
+
+# Print overall analysis
+echo ""
+echo "Overall Analysis:"
+echo "-----------------"
+echo "Number of students registered: $students_registered"
+echo "Number of students passed in all subjects: $passed_students"

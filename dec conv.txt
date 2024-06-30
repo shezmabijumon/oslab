@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Function to convert decimal to binary
+decimal_to_binary() {
+    num=$1
+    binary=""
+    while [ $num -gt 0 ]; do
+        remainder=$((num % 2))
+        binary="$remainder$binary"
+        num=$((num / 2))
+    done
+    echo "$binary"
+}
+
+# Function to convert decimal to octal
+decimal_to_octal() {
+    num=$1
+    octal=""
+    while [ $num -gt 0 ]; do
+        remainder=$((num % 8))
+        octal="$remainder$octal"
+        num=$((num / 8))
+    done
+    echo "$octal"
+}
+
+
+# Function to convert decimal to hexadecimal
+decimal_to_hexadecimal() {
+    num=$1
+    hexadecimal=""
+    while [ $num -gt 0 ]; do
+        remainder=$((num % 16))
+        case $remainder in
+            10) hexadecimal="A$hexadecimal" ;;
+            11) hexadecimal="B$hexadecimal" ;;
+            12) hexadecimal="C$hexadecimal" ;;
+            13) hexadecimal="D$hexadecimal" ;;
+            14) hexadecimal="E$hexadecimal" ;;
+            15) hexadecimal="F$hexadecimal" ;;
+            *) hexadecimal="$remainder$hexadecimal" ;;
+        esac
+        num=$((num / 16))
+    done
+    echo "$hexadecimal"
+}
+
+# Read the decimal number from the user
+echo "Enter a decimal number:"
+read decimal_number
+
+# Call the functions to convert decimal to binary and hexadecimal
+binary=$(decimal_to_binary $decimal_number)
+octal=$(decimal_to_octal $decimal_number)
+hexadecimal=$(decimal_to_hexadecimal $decimal_number)
+
+# Print the results
+echo "Binary equivalent: $binary"
+echo "Octan equivalent: $octal"
+echo "Hexadecimal equivalent: $hexadecimal"
