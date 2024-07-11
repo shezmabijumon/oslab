@@ -14,8 +14,7 @@ void * philosopher(void * arg) {
     int right_fork = (id + 1) % NUM_PHILOSOPHERS;
     int eatcount = 0;
     while (eatcount < MaxCycles) {
-        printf("Philosopher %d has started thinking and is not
-        eating\n", id); // Thinking
+        printf("Philosopher %d has started thinking and is not eating\n", id); // Thinking
         sleep(rand() % 3 + 1);
         sem_wait( & mutex);
         // Pick up forks
