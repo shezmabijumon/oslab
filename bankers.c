@@ -1,100 +1,119 @@
-#include <stdio.h>
-    typedef struct {
-    int max[10];
-    int allocated[10];
-    int need[10];
-}process_info;
-int np, nr;
-void input(process_info[], int[]);
-void showTheInfo(process_info[]);
-int isSafeState(process_info[], int[], int[]);
+#include<stdio.h>
+#include<stdlib.h>
 
-int main() {
-    printf("Enter No of Processes and Resource types in system: ");
-    scanf("%d%d", & np, & nr);
-    int available[nr], safeSequence[np];
-    process_info process[np];
-    printf("****************Enter details of processes*****************\n");
-    input(process, available);
-    showTheInfo(process);
-    if (isSafeState(process, available, safeSequence)) {
-        printf("System is in safe state\n");
-        printf("Safe sequence is: ");
-        for (int i = 0; i < np; i++)
-            printf("P[%d] ", safeSequence[i]);
-        printf("\n");
-    } 
-    else
-        printf("System is not in Safe State\n");
-    return 0;
-}
-//Take the input
-void input(process_info process[np], int available[nr]) {
-    for (int i = 0; i < np; i++) {
-        printf("Enter process[%d] info\n", i);
-        printf("Enter Maximum need: ");
-        for (int j = 0; j < nr; j++)
-            scanf("%d", & process[i].max[j]);
-        printf("Enter No. of Allocated Resources: ");
-        for (int j = 0; j < nr; j++) {
-            scanf("%d", & process[i].allocated[j]);
-            process[i].need[j] = process[i].max[j] -
-            process[i].allocated[j];
+typedef struct{
+    int id;
+    int need[10];
+    int max[10];
+    int alloc[10];
+} process;
+
+void main(){
+    int n,r;
+    printf("enter no.of processes: ");
+    scanf("%d",&n);
+    process p[10];
+    printf("enter no.of resources: ");
+    scanf("%d",&r);
+    int resource[10];
+    int available[10];
+    for (int i=0;i<r;i++){
+        printf("enter no.of instances of Resource %d: ",i+1);
+        scanf("%d",&resource[i]);
+        available[i]=0;
+    }
+    for (int i = 0; i < n; i++){
+        p[i].id = i + 1;
+        printf("Enter resource need and resource allocated to process %d\n", (i + 1));
+        for (int j = 0; j < r; j++){
+            printf("Enter no of instances of resource %d max needed:\n", (j + 1));
+            scanf("%d", &p[i].max[j]);
+            printf("Enter no of instances of resource %d allocted:\n", (j + 1));
+            scanf("%d", &p[i].alloc[j]);
+            p[i].need[j] = p[i].max[j] - p[i].alloc[j];
         }
     }
-    printf("Enter Available Resources: ");
-    for (int i = 0; i < nr; i++)
-        scanf("%d", & available[i]);
-}
-//Print the Info in Tabular form
-void showTheInfo(process_info process[np]) {
-    printf("PID\tMaximum\t\tAllocated\tNeed\n");
-    for (int i = 0; i < np; i++) {
-        printf("P[%d]\t", i);
-        for (int j = 0; j < nr; j++)
-            printf("%d ", process[i].max[j]);
-        printf("\t\t");
-        for (int j = 0; j < nr; j++)
-            printf("%d ", process[i].allocated[j]);
-        printf("\t\t");
-        for (int j = 0; j < nr; j++)
-            printf("%d ", process[i].need[j]);
+    //resource available
+    for (int i = 0; i < r; i++){
+        int sum=0;
+        for (int j= 0; j < n; j++){
+            sum += p[j].alloc[i];
+        }
+        available[i]=resource[i]-sum;        
+    }
+    printf("Process\t  Max  \t  Allocation     Need\n");
+    for (int i = 0; i < n; i++){
+        printf("  P%d \t", (i + 1));
+        for (int j = 0; j < r; j++){
+            printf("%d  ", p[i].max[j]);
+        }
+        for (int j = 0; j < r; j++){
+            printf("%d  ", p[i].alloc[j]);
+        }
+        printf("\t");
+        for (int j = 0; j < r; j++){
+            printf("%d  ", p[i].need[j]);
+        }
         printf("\n");
     }
-}
-int isSafeState(process_info process[np], int available[nr], int safeSequence[np]) {
-    int finish[np], work[nr], proceed = 1, k = 0, i, j, flag;
-    for (i = 0; i < nr; i++)
-        work[i] = available[i];
-    for (i = 0; i < np; i++)
-        finish[i] = 0;
-    while (proceed) {
-        proceed = 0;
-        for (i = 0; i < np; i++) {
-            flag = 1;
-            if (finish[i] == 0) {
-                for (j = 0; j < nr; j++) {
-                    if (process[i].need[j] <= work[j])
-                        continue;
-                    else {
-                        flag = 0;
+    printf("available resources:\n");
+    for (int i = 0; i < r; i++){
+        printf("R%d\t",i+1);
+    }
+    printf("\n");
+    for (int i = 0; i < r; i++){
+        printf("%d\t",available[i]);
+    }
+    printf("\n");
+    int completed[10],sequence[10];
+    for (int i = 0; i < n; i++){
+        completed[i]=0;
+    }
+    int count=0,index=0;
+    while(count<n){
+        int flag=0;
+        for (int i=0; i<n; i++){
+            if (completed[i]==0){
+                int j;
+                for(j=0;j<r;j++){
+                    if(available[j]<p[i].need[j]){
                         break;
                     }
                 }
-                if (flag == 0) 
-                    continue;
-                for (j = 0; j < nr; j++)
-                    work[j] = work[j] + process[i].allocated[j];
-                finish[i] = 1;
-                safeSequence[k++] = i;
-                proceed = 1;
+                if (j==r){
+                    flag=1;
+                    completed[i]=1;
+                    count++;
+                    sequence[index++]=p[i].id;
+                    for(int k=0;k<r;k++){
+                        available[k] += p[i].alloc[k];
+                    }
+                    printf("process%d executed\n", p[i].id);
+                    printf("New Available resource\n");
+                    for (int k = 0; k < r; k++){
+                        printf("R%d\t",k+1);
+                    }
+                    printf("\n");
+                    for (int k = 0; k < r; k++){
+                        printf("%d\t",available[k]);
+                    }
+                    printf("\n");
+                }
+                else{
+                    printf("process%d cannot be executed as need > available\n", p[i].id);
+                }
             }
         }
+        if (flag == 0){
+            printf("\nUnsafe State\n");
+            break;
+        }
     }
-    for (i = 0; i < np && finish[i] == 1; i++)
-        continue;
-    if (i == np) 
-        return 1;
-    else 
-        return 0;
+    if (count == n){
+        printf("\nSafe sequence is:\n");
+        for (int i = 0; i < n; i++){
+            printf("P%d\t", sequence[i]);
+        }
+    }
+    printf("\n");
 }
